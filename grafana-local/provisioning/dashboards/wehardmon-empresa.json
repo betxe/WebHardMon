@@ -6,8 +6,8 @@
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
   "id": null,
-  "uid": "webhardmon-empresas",
-  "title": "WebHardMon - Telemetría por empresa",
+  "uid": "webhardmon-empresa",
+  "title": "WebHardMon - Dashboard de empresa",
   "tags": [
     "webhardmon",
     "telemetria",
@@ -15,7 +15,7 @@
   ],
   "timezone": "browser",
   "schemaVersion": 41,
-  "version": 1,
+  "version": 2,
   "refresh": "5s",
   "time": {
     "from": "now-15m",
@@ -32,13 +32,12 @@
         },
         "query": "label_values(cpu_usage_percent, empresa)",
         "refresh": 1,
-        "sort": 1,
-        "multi": true,
-        "includeAll": true,
+        "includeAll": false,
+        "multi": false,
         "current": {
-          "selected": true,
-          "text": "All",
-          "value": "$__all"
+          "selected": false,
+          "text": "1",
+          "value": "1"
         }
       },
       {
@@ -50,9 +49,8 @@
         },
         "query": "label_values(processor_info{empresa=~\"$empresa\"}, ram)",
         "refresh": 1,
-        "sort": 1,
-        "multi": true,
         "includeAll": true,
+        "multi": true,
         "current": {
           "selected": true,
           "text": "All",
@@ -68,9 +66,8 @@
         },
         "query": "label_values(processor_info{empresa=~\"$empresa\"}, storage)",
         "refresh": 1,
-        "sort": 1,
-        "multi": true,
         "includeAll": true,
+        "multi": true,
         "current": {
           "selected": true,
           "text": "All",
@@ -78,22 +75,31 @@
         }
       },
       {
-        "name": "portatil",
-        "type": "query",
-        "datasource": {
-          "type": "prometheus",
-          "uid": "victoriametrics"
-        },
-        "query": "label_values(processor_info{empresa=~\"$empresa\", ram=~\"$ram\", storage=~\"$storage\"}, portatil)",
-        "refresh": 1,
-        "sort": 1,
-        "multi": true,
-        "includeAll": true,
+        "name": "topk",
+        "type": "custom",
+        "query": "5,10,15",
         "current": {
           "selected": true,
-          "text": "All",
-          "value": "$__all"
-        }
+          "text": "10",
+          "value": "10"
+        },
+        "options": [
+          {
+            "selected": false,
+            "text": "5",
+            "value": "5"
+          },
+          {
+            "selected": true,
+            "text": "10",
+            "value": "10"
+          },
+          {
+            "selected": false,
+            "text": "15",
+            "value": "15"
+          }
+        ]
       }
     ]
   },
@@ -101,7 +107,7 @@
     {
       "id": 1,
       "type": "stat",
-      "title": "CPU medio actual",
+      "title": "CPU media actual",
       "gridPos": {
         "x": 0,
         "y": 0,
@@ -114,14 +120,9 @@
       },
       "targets": [
         {
-          "refId": "A",
-          "expr": "avg(cpu_usage_percent{empresa=~\"$empresa\", portatil=~\"$portatil\"})",
-          "legendFormat": "CPU medio",
-          "range": true,
-          "datasource": {
-            "type": "prometheus",
-            "uid": "victoriametrics"
-          }
+          "expr": "avg(cpu_usage_percent{empresa=~\"$empresa\"} and on (empresa, portatil) processor_info{empresa=~\"$empresa\", ram=~\"$ram\", storage=~\"$storage\"})",
+          "legendFormat": "",
+          "refId": "A"
         }
       ],
       "fieldConfig": {
@@ -179,14 +180,9 @@
       },
       "targets": [
         {
-          "refId": "A",
-          "expr": "avg(ram_usage_percent{empresa=~\"$empresa\", portatil=~\"$portatil\"})",
-          "legendFormat": "RAM media",
-          "range": true,
-          "datasource": {
-            "type": "prometheus",
-            "uid": "victoriametrics"
-          }
+          "expr": "avg(ram_usage_percent{empresa=~\"$empresa\"} and on (empresa, portatil) processor_info{empresa=~\"$empresa\", ram=~\"$ram\", storage=~\"$storage\"})",
+          "legendFormat": "",
+          "refId": "A"
         }
       ],
       "fieldConfig": {
@@ -244,14 +240,9 @@
       },
       "targets": [
         {
-          "refId": "A",
-          "expr": "avg(disk_usage_percent{empresa=~\"$empresa\", portatil=~\"$portatil\"})",
-          "legendFormat": "Disco medio",
-          "range": true,
-          "datasource": {
-            "type": "prometheus",
-            "uid": "victoriametrics"
-          }
+          "expr": "avg(disk_usage_percent{empresa=~\"$empresa\"} and on (empresa, portatil) processor_info{empresa=~\"$empresa\", ram=~\"$ram\", storage=~\"$storage\"})",
+          "legendFormat": "",
+          "refId": "A"
         }
       ],
       "fieldConfig": {
@@ -309,14 +300,9 @@
       },
       "targets": [
         {
-          "refId": "A",
-          "expr": "avg(temperature_celsius{empresa=~\"$empresa\", portatil=~\"$portatil\"})",
-          "legendFormat": "Temp media",
-          "range": true,
-          "datasource": {
-            "type": "prometheus",
-            "uid": "victoriametrics"
-          }
+          "expr": "avg(temperature_celsius{empresa=~\"$empresa\"} and on (empresa, portatil) processor_info{empresa=~\"$empresa\", ram=~\"$ram\", storage=~\"$storage\"})",
+          "legendFormat": "",
+          "refId": "A"
         }
       ],
       "fieldConfig": {
@@ -374,14 +360,9 @@
       },
       "targets": [
         {
-          "refId": "A",
-          "expr": "avg(battery_percent{empresa=~\"$empresa\", portatil=~\"$portatil\"})",
-          "legendFormat": "Batería",
-          "range": true,
-          "datasource": {
-            "type": "prometheus",
-            "uid": "victoriametrics"
-          }
+          "expr": "avg(battery_percent{empresa=~\"$empresa\"} and on (empresa, portatil) processor_info{empresa=~\"$empresa\", ram=~\"$ram\", storage=~\"$storage\"})",
+          "legendFormat": "",
+          "refId": "A"
         }
       ],
       "fieldConfig": {
@@ -424,7 +405,7 @@
     {
       "id": 6,
       "type": "stat",
-      "title": "Portátiles reportando en la empresa",
+      "title": "Portátiles reportando",
       "gridPos": {
         "x": 20,
         "y": 0,
@@ -437,14 +418,9 @@
       },
       "targets": [
         {
-          "refId": "A",
-          "expr": "count(count by (portatil) (cpu_usage_percent{empresa=~\"$empresa\", portatil=~\"$portatil\"}))",
-          "legendFormat": "Portátiles",
-          "range": true,
-          "datasource": {
-            "type": "prometheus",
-            "uid": "victoriametrics"
-          }
+          "expr": "count(count by (portatil) (cpu_usage_percent{empresa=~\"$empresa\"} and on (empresa, portatil) processor_info{empresa=~\"$empresa\", ram=~\"$ram\", storage=~\"$storage\"}))",
+          "legendFormat": "",
+          "refId": "A"
         }
       ],
       "fieldConfig": {
@@ -489,12 +465,12 @@
     {
       "id": 7,
       "type": "table",
-      "title": "Uso medio de CPU por empresa",
+      "title": "Peores portátiles por CPU",
       "gridPos": {
         "x": 0,
         "y": 4,
         "w": 24,
-        "h": 8
+        "h": 10
       },
       "datasource": {
         "type": "prometheus",
@@ -502,19 +478,18 @@
       },
       "targets": [
         {
-          "refId": "A",
-          "expr": "avg by (portatil) (cpu_usage_percent{empresa=~\"$empresa\", portatil=~\"$portatil\"})",
+          "expr": "topk(${topk}, avg by (portatil) (avg_over_time(cpu_usage_percent{empresa=~\"$empresa\"}[$__range]) and on (empresa, portatil) processor_info{empresa=~\"$empresa\", ram=~\"$ram\", storage=~\"$storage\"}))",
           "legendFormat": "{{portatil}}",
-          "range": true,
-          "datasource": {
-            "type": "prometheus",
-            "uid": "victoriametrics"
-          }
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "table"
         }
       ],
       "fieldConfig": {
         "defaults": {
           "unit": "percent",
+          "decimals": 1,
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -539,9 +514,7 @@
               "type": "auto"
             },
             "inspect": false
-          },
-          "min": 0,
-          "max": 100
+          }
         },
         "overrides": [
           {
@@ -552,7 +525,7 @@
             "properties": [
               {
                 "id": "custom.width",
-                "value": 360
+                "value": 420
               },
               {
                 "id": "unit",
@@ -573,12 +546,12 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "Valor"
+              "options": "CPU media %"
             },
             "properties": [
               {
                 "id": "custom.width",
-                "value": 260
+                "value": 520
               },
               {
                 "id": "custom.align",
@@ -588,8 +561,13 @@
                 "id": "custom.cellOptions",
                 "value": {
                   "type": "gauge",
-                  "mode": "gradient"
+                  "mode": "gradient",
+                  "valueDisplayMode": "text"
                 }
+              },
+              {
+                "id": "unit",
+                "value": "percent"
               },
               {
                 "id": "decimals",
@@ -600,19 +578,6 @@
         ]
       },
       "options": {
-        "legend": {
-          "displayMode": "table",
-          "placement": "bottom",
-          "calcs": [
-            "lastNotNull",
-            "mean",
-            "max"
-          ]
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        },
         "showHeader": true,
         "cellHeight": "md",
         "footer": {
@@ -623,17 +588,42 @@
           "countRows": false,
           "fields": ""
         }
-      }
+      },
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "empresa": true,
+              "__name__": true,
+              "ram": true,
+              "storage": true,
+              "job": true,
+              "instance": true
+            },
+            "renameByName": {
+              "portatil": "Portátil",
+              "Value": "CPU media %",
+              "Value #A": "CPU media %"
+            },
+            "indexByName": {
+              "Portátil": 0,
+              "CPU media %": 1
+            }
+          }
+        }
+      ]
     },
     {
       "id": 8,
       "type": "table",
-      "title": "Uso medio de RAM por empresa",
+      "title": "Peores portátiles por RAM",
       "gridPos": {
         "x": 0,
         "y": 12,
         "w": 24,
-        "h": 8
+        "h": 10
       },
       "datasource": {
         "type": "prometheus",
@@ -641,19 +631,18 @@
       },
       "targets": [
         {
-          "refId": "A",
-          "expr": "avg by (portatil) (ram_usage_percent{empresa=~\"$empresa\", portatil=~\"$portatil\"})",
+          "expr": "topk(${topk}, avg by (portatil) (avg_over_time(ram_usage_percent{empresa=~\"$empresa\"}[$__range]) and on (empresa, portatil) processor_info{empresa=~\"$empresa\", ram=~\"$ram\", storage=~\"$storage\"}))",
           "legendFormat": "{{portatil}}",
-          "range": true,
-          "datasource": {
-            "type": "prometheus",
-            "uid": "victoriametrics"
-          }
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "table"
         }
       ],
       "fieldConfig": {
         "defaults": {
           "unit": "percent",
+          "decimals": 1,
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -678,9 +667,7 @@
               "type": "auto"
             },
             "inspect": false
-          },
-          "min": 0,
-          "max": 100
+          }
         },
         "overrides": [
           {
@@ -691,7 +678,7 @@
             "properties": [
               {
                 "id": "custom.width",
-                "value": 360
+                "value": 420
               },
               {
                 "id": "unit",
@@ -712,12 +699,12 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "Valor"
+              "options": "RAM media %"
             },
             "properties": [
               {
                 "id": "custom.width",
-                "value": 260
+                "value": 520
               },
               {
                 "id": "custom.align",
@@ -727,8 +714,13 @@
                 "id": "custom.cellOptions",
                 "value": {
                   "type": "gauge",
-                  "mode": "gradient"
+                  "mode": "gradient",
+                  "valueDisplayMode": "text"
                 }
+              },
+              {
+                "id": "unit",
+                "value": "percent"
               },
               {
                 "id": "decimals",
@@ -739,19 +731,6 @@
         ]
       },
       "options": {
-        "legend": {
-          "displayMode": "table",
-          "placement": "bottom",
-          "calcs": [
-            "lastNotNull",
-            "mean",
-            "max"
-          ]
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        },
         "showHeader": true,
         "cellHeight": "md",
         "footer": {
@@ -762,17 +741,42 @@
           "countRows": false,
           "fields": ""
         }
-      }
+      },
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "empresa": true,
+              "__name__": true,
+              "ram": true,
+              "storage": true,
+              "job": true,
+              "instance": true
+            },
+            "renameByName": {
+              "portatil": "Portátil",
+              "Value": "RAM media %",
+              "Value #A": "RAM media %"
+            },
+            "indexByName": {
+              "Portátil": 0,
+              "RAM media %": 1
+            }
+          }
+        }
+      ]
     },
     {
       "id": 9,
       "type": "table",
-      "title": "Uso medio de disco por empresa",
+      "title": "Peores portátiles por disco",
       "gridPos": {
         "x": 0,
         "y": 20,
         "w": 24,
-        "h": 8
+        "h": 10
       },
       "datasource": {
         "type": "prometheus",
@@ -780,19 +784,18 @@
       },
       "targets": [
         {
-          "refId": "A",
-          "expr": "avg by (portatil) (disk_usage_percent{empresa=~\"$empresa\", portatil=~\"$portatil\"})",
+          "expr": "topk(${topk}, avg by (portatil) (avg_over_time(disk_usage_percent{empresa=~\"$empresa\"}[$__range]) and on (empresa, portatil) processor_info{empresa=~\"$empresa\", ram=~\"$ram\", storage=~\"$storage\"}))",
           "legendFormat": "{{portatil}}",
-          "range": true,
-          "datasource": {
-            "type": "prometheus",
-            "uid": "victoriametrics"
-          }
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "table"
         }
       ],
       "fieldConfig": {
         "defaults": {
           "unit": "percent",
+          "decimals": 1,
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -803,7 +806,7 @@
               },
               {
                 "color": "orange",
-                "value": 70
+                "value": 75
               },
               {
                 "color": "red",
@@ -817,9 +820,7 @@
               "type": "auto"
             },
             "inspect": false
-          },
-          "min": 0,
-          "max": 100
+          }
         },
         "overrides": [
           {
@@ -830,7 +831,7 @@
             "properties": [
               {
                 "id": "custom.width",
-                "value": 360
+                "value": 420
               },
               {
                 "id": "unit",
@@ -851,12 +852,12 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "Valor"
+              "options": "Disco medio %"
             },
             "properties": [
               {
                 "id": "custom.width",
-                "value": 260
+                "value": 520
               },
               {
                 "id": "custom.align",
@@ -866,8 +867,13 @@
                 "id": "custom.cellOptions",
                 "value": {
                   "type": "gauge",
-                  "mode": "gradient"
+                  "mode": "gradient",
+                  "valueDisplayMode": "text"
                 }
+              },
+              {
+                "id": "unit",
+                "value": "percent"
               },
               {
                 "id": "decimals",
@@ -878,19 +884,6 @@
         ]
       },
       "options": {
-        "legend": {
-          "displayMode": "table",
-          "placement": "bottom",
-          "calcs": [
-            "lastNotNull",
-            "mean",
-            "max"
-          ]
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        },
         "showHeader": true,
         "cellHeight": "md",
         "footer": {
@@ -901,17 +894,42 @@
           "countRows": false,
           "fields": ""
         }
-      }
+      },
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "empresa": true,
+              "__name__": true,
+              "ram": true,
+              "storage": true,
+              "job": true,
+              "instance": true
+            },
+            "renameByName": {
+              "portatil": "Portátil",
+              "Value": "Disco medio %",
+              "Value #A": "Disco medio %"
+            },
+            "indexByName": {
+              "Portátil": 0,
+              "Disco medio %": 1
+            }
+          }
+        }
+      ]
     },
     {
       "id": 10,
       "type": "table",
-      "title": "Temperatura media por empresa",
+      "title": "Peores portátiles por temperatura",
       "gridPos": {
         "x": 0,
         "y": 28,
         "w": 24,
-        "h": 8
+        "h": 10
       },
       "datasource": {
         "type": "prometheus",
@@ -919,19 +937,18 @@
       },
       "targets": [
         {
-          "refId": "A",
-          "expr": "avg by (portatil) (temperature_celsius{empresa=~\"$empresa\", portatil=~\"$portatil\"})",
+          "expr": "topk(${topk}, avg by (portatil) (avg_over_time(temperature_celsius{empresa=~\"$empresa\"}[$__range]) and on (empresa, portatil) processor_info{empresa=~\"$empresa\", ram=~\"$ram\", storage=~\"$storage\"}))",
           "legendFormat": "{{portatil}}",
-          "range": true,
-          "datasource": {
-            "type": "prometheus",
-            "uid": "victoriametrics"
-          }
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "table"
         }
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "percent",
+          "unit": "celsius",
+          "decimals": 1,
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -942,7 +959,160 @@
               },
               {
                 "color": "orange",
-                "value": 65
+                "value": 70
+              },
+              {
+                "color": "red",
+                "value": 85
+              }
+            ]
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Portátil"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 420
+              },
+              {
+                "id": "unit",
+                "value": "string"
+              },
+              {
+                "id": "custom.align",
+                "value": "left"
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "auto"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Temperatura media ºC"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 520
+              },
+              {
+                "id": "custom.align",
+                "value": "left"
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "gauge",
+                  "mode": "gradient",
+                  "valueDisplayMode": "text"
+                }
+              },
+              {
+                "id": "unit",
+                "value": "celsius"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "md",
+        "footer": {
+          "show": false,
+          "reducer": [
+            "sum"
+          ],
+          "countRows": false,
+          "fields": ""
+        }
+      },
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "empresa": true,
+              "__name__": true,
+              "ram": true,
+              "storage": true,
+              "job": true,
+              "instance": true
+            },
+            "renameByName": {
+              "portatil": "Portátil",
+              "Value": "Temperatura media ºC",
+              "Value #A": "Temperatura media ºC"
+            },
+            "indexByName": {
+              "Portátil": 0,
+              "Temperatura media ºC": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "type": "table",
+      "title": "Peores portátiles por stress score",
+      "gridPos": {
+        "x": 0,
+        "y": 36,
+        "w": 24,
+        "h": 10
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "targets": [
+        {
+          "expr": "topk(${topk}, avg by (portatil) (avg_over_time(stress_score{empresa=~\"$empresa\"}[$__range]) and on (empresa, portatil) processor_info{empresa=~\"$empresa\", ram=~\"$ram\", storage=~\"$storage\"}))",
+          "legendFormat": "{{portatil}}",
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "table"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "decimals": 1,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 60
               },
               {
                 "color": "red",
@@ -956,9 +1126,7 @@
               "type": "auto"
             },
             "inspect": false
-          },
-          "min": 0,
-          "max": 100
+          }
         },
         "overrides": [
           {
@@ -969,7 +1137,7 @@
             "properties": [
               {
                 "id": "custom.width",
-                "value": 360
+                "value": 420
               },
               {
                 "id": "unit",
@@ -990,12 +1158,12 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "Valor"
+              "options": "Stress score"
             },
             "properties": [
               {
                 "id": "custom.width",
-                "value": 260
+                "value": 520
               },
               {
                 "id": "custom.align",
@@ -1005,147 +1173,13 @@
                 "id": "custom.cellOptions",
                 "value": {
                   "type": "gauge",
-                  "mode": "gradient"
+                  "mode": "gradient",
+                  "valueDisplayMode": "text"
                 }
-              },
-              {
-                "id": "decimals",
-                "value": 1
-              }
-            ]
-          }
-        ]
-      },
-      "options": {
-        "legend": {
-          "displayMode": "table",
-          "placement": "bottom",
-          "calcs": [
-            "lastNotNull",
-            "mean",
-            "max"
-          ]
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        },
-        "showHeader": true,
-        "cellHeight": "md",
-        "footer": {
-          "show": false,
-          "reducer": [
-            "sum"
-          ],
-          "countRows": false,
-          "fields": ""
-        }
-      }
-    },
-    {
-      "id": 11,
-      "type": "table",
-      "title": "Batería media por empresa",
-      "gridPos": {
-        "x": 0,
-        "y": 36,
-        "w": 24,
-        "h": 8
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "victoriametrics"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "avg by (portatil) (battery_percent{empresa=~\"$empresa\", portatil=~\"$portatil\"})",
-          "legendFormat": "{{portatil}}",
-          "range": true,
-          "datasource": {
-            "type": "prometheus",
-            "uid": "victoriametrics"
-          }
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percent",
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "red",
-                "value": null
-              },
-              {
-                "color": "orange",
-                "value": 20
-              },
-              {
-                "color": "green",
-                "value": 50
-              }
-            ]
-          },
-          "custom": {
-            "align": "auto",
-            "cellOptions": {
-              "type": "auto"
-            },
-            "inspect": false
-          },
-          "min": 0,
-          "max": 100
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Portátil"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 360
               },
               {
                 "id": "unit",
-                "value": "string"
-              },
-              {
-                "id": "custom.align",
-                "value": "left"
-              },
-              {
-                "id": "custom.cellOptions",
-                "value": {
-                  "type": "auto"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Valor"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 260
-              },
-              {
-                "id": "custom.align",
-                "value": "left"
-              },
-              {
-                "id": "custom.cellOptions",
-                "value": {
-                  "type": "gauge",
-                  "mode": "gradient"
-                }
+                "value": "none"
               },
               {
                 "id": "decimals",
@@ -1156,19 +1190,6 @@
         ]
       },
       "options": {
-        "legend": {
-          "displayMode": "table",
-          "placement": "bottom",
-          "calcs": [
-            "lastNotNull",
-            "mean",
-            "max"
-          ]
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        },
         "showHeader": true,
         "cellHeight": "md",
         "footer": {
@@ -1179,196 +1200,28 @@
           "countRows": false,
           "fields": ""
         }
-      }
-    },
-    {
-      "id": 12,
-      "type": "bargauge",
-      "title": "Top empresas con más CPU",
-      "gridPos": {
-        "x": 12,
-        "y": 20,
-        "w": 12,
-        "h": 8
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "victoriametrics"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "topk(10, avg by (portatil) (cpu_usage_percent{empresa=~\"$empresa\", portatil=~\"$portatil\"}))",
-          "legendFormat": "{{portatil}}",
-          "range": false,
-          "datasource": {
-            "type": "prometheus",
-            "uid": "victoriametrics"
-          },
-          "instant": true
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percent",
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "orange",
-                "value": 70
-              },
-              {
-                "color": "red",
-                "value": 90
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "reduceOptions": {
-          "values": false,
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": ""
-        },
-        "orientation": "horizontal",
-        "displayMode": "gradient",
-        "showUnfilled": true
-      }
-    },
-    {
-      "id": 13,
-      "type": "table",
-      "title": "Estado actual por empresa",
-      "gridPos": {
-        "x": 0,
-        "y": 28,
-        "w": 24,
-        "h": 8
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "victoriametrics"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "avg by (empresa) (cpu_usage_percent{empresa=~\"$empresa\"})",
-          "legendFormat": "CPU",
-          "instant": true,
-          "format": "table",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "victoriametrics"
-          }
-        },
-        {
-          "refId": "B",
-          "expr": "avg by (empresa) (ram_usage_percent{empresa=~\"$empresa\"})",
-          "legendFormat": "RAM",
-          "instant": true,
-          "format": "table",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "victoriametrics"
-          }
-        },
-        {
-          "refId": "C",
-          "expr": "avg by (empresa) (disk_usage_percent{empresa=~\"$empresa\"})",
-          "legendFormat": "Disco",
-          "instant": true,
-          "format": "table",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "victoriametrics"
-          }
-        },
-        {
-          "refId": "D",
-          "expr": "avg by (empresa) (temperature_celsius{empresa=~\"$empresa\"})",
-          "legendFormat": "Temp",
-          "instant": true,
-          "format": "table",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "victoriametrics"
-          }
-        },
-        {
-          "refId": "E",
-          "expr": "avg by (empresa) (battery_percent{empresa=~\"$empresa\"})",
-          "legendFormat": "Batería",
-          "instant": true,
-          "format": "table",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "victoriametrics"
-          }
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percent",
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "orange",
-                "value": 70
-              },
-              {
-                "color": "red",
-                "value": 90
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "showHeader": true,
-        "cellHeight": "sm"
       },
       "transformations": [
-        {
-          "id": "joinByField",
-          "options": {
-            "byField": "portatil",
-            "mode": "outer"
-          }
-        },
         {
           "id": "organize",
           "options": {
             "excludeByName": {
               "Time": true,
-              "Time 1": true,
-              "Time 2": true,
-              "Time 3": true,
-              "Time 4": true,
-              "Time 5": true
+              "empresa": true,
+              "__name__": true,
+              "ram": true,
+              "storage": true,
+              "job": true,
+              "instance": true
             },
             "renameByName": {
-              "Value #A": "CPU %",
-              "Value #B": "RAM %",
-              "Value #C": "Disco %",
-              "Value #D": "Temp C",
-              "Value #E": "Bateria %"
+              "portatil": "Portátil",
+              "Value": "Stress score",
+              "Value #A": "Stress score"
+            },
+            "indexByName": {
+              "Portátil": 0,
+              "Stress score": 1
             }
           }
         }

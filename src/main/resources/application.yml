@@ -13,7 +13,9 @@ spring:
 
 app:
   grafana:
-    dashboard-url: ${GRAFANA_DASHBOARD_URL:http://localhost:3000/grafana/public-dashboards/8fe987f683794be4aa6898cd23e5f988}
+    dashboard-url: ${GRAFANA_DASHBOARD_URL:http://localhost:3000/d-solo/webhardmon-empresa/webhardmon-empresa}
+    empresa-dashboard-url: ${GRAFANA_EMPRESA_DASHBOARD_URL:http://localhost:3000/d-solo/webhardmon-empresa/webhardmon-empresa}
+    ordenadores-dashboard-url: ${GRAFANA_ORDENADORES_DASHBOARD_URL:http://localhost:3000/d-solo/webhardmon-ordenadores/webhardmon-ordenadores}
 
 server:
   port: 8080

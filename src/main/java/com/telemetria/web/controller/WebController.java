@@ -16,30 +16,42 @@ public class WebController {
         this.grafanaService = grafanaService;
     }
 
-    @GetMapping("/dashboard")
-    public String dashboard(@AuthenticationPrincipal AdminPrincipal principal, Model model) {
+    @GetMapping({"/", "/dashboard", "/dashboard/empresa"})
+    public String dashboardEmpresa(@AuthenticationPrincipal AdminPrincipal principal, Model model) {
         if (principal == null) {
             return "redirect:/login";
         }
 
         Long empresaId = principal.getEmpresaId();
 
-        String grafanaUrl = grafanaService.buildDashboardUrl(empresaId);
-
-        model.addAttribute("grafanaIframeUrl", grafanaUrl);
+        model.addAttribute("grafanaIframeUrl", grafanaService.buildEmpresaDashboardUrl(empresaId));
         model.addAttribute("empresaNombre", principal.getEmpresaNombre());
         model.addAttribute("empresaId", empresaId);
+        model.addAttribute("dashboardTipo", "empresa");
+        model.addAttribute("dashboardTitulo", "Dashboard de empresa");
 
         return "layout";
     }
 
-    @GetMapping("/")
-    public String root() {
-        return "redirect:/dashboard";
+    @GetMapping("/dashboard/ordenadores")
+    public String dashboardOrdenadores(@AuthenticationPrincipal AdminPrincipal principal, Model model) {
+        if (principal == null) {
+            return "redirect:/login";
+        }
+
+        Long empresaId = principal.getEmpresaId();
+
+        model.addAttribute("grafanaIframeUrl", grafanaService.buildOrdenadoresDashboardUrl(empresaId));
+        model.addAttribute("empresaNombre", principal.getEmpresaNombre());
+        model.addAttribute("empresaId", empresaId);
+        model.addAttribute("dashboardTipo", "ordenadores");
+        model.addAttribute("dashboardTitulo", "Dashboard de ordenadores");
+
+        return "layout";
     }
 
     @GetMapping("/licencias")
     public String licencias() {
-        return "redirect:/dashboard";
+        return "redirect:/dashboard/empresa";
     }
 }

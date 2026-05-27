@@ -20,6 +20,7 @@ do
   DISK=$(( 20 + RANDOM % 80 ))
   TEMP=$(( 35 + RANDOM % 55 ))
   BATTERY=$(( RANDOM % 100 ))
+  STRESS_SCORE=$(( (CPU * 35 + RAM * 25 + DISK * 20 + TEMP * 20) / 100 ))
 
   RAM_TOTAL=${RAM_TOTAL_OPCIONES[$(( i % ${#RAM_TOTAL_OPCIONES[@]} ))]}
   STORAGE_TOTAL=${STORAGE_TOTAL_OPCIONES[$(( i % ${#STORAGE_TOTAL_OPCIONES[@]} ))]}
@@ -31,6 +32,7 @@ ram_usage_percent{empresa="$EMPRESA_ID",portatil="$PORTATIL_ID"} $RAM $TIMESTAMP
 disk_usage_percent{empresa="$EMPRESA_ID",portatil="$PORTATIL_ID"} $DISK $TIMESTAMP
 temperature_celsius{empresa="$EMPRESA_ID",portatil="$PORTATIL_ID"} $TEMP $TIMESTAMP
 battery_percent{empresa="$EMPRESA_ID",portatil="$PORTATIL_ID"} $BATTERY $TIMESTAMP
+stress_score{empresa="$EMPRESA_ID",portatil="$PORTATIL_ID"} $STRESS_SCORE $TIMESTAMP
 ram_total_gb{empresa="$EMPRESA_ID",portatil="$PORTATIL_ID"} $RAM_TOTAL $TIMESTAMP
 storage_total_gb{empresa="$EMPRESA_ID",portatil="$PORTATIL_ID"} $STORAGE_TOTAL $TIMESTAMP
 processor_info{empresa="$EMPRESA_ID",portatil="$PORTATIL_ID",procesador="$PROCESADOR",ram="$RAM_TOTAL",storage="$STORAGE_TOTAL"} 1 $TIMESTAMP

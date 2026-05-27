@@ -22,6 +22,8 @@
     <style> 
       .dropdown-menu { display: none; }
       .dropdown:hover .dropdown-menu { display: block; }
+      .grafana-panel-frame { overflow: hidden; }
+      .grafana-panel-frame iframe { display: block; overflow: hidden; }
     </style>
 </head>
 <body class="bg-darkBg text-gray-200 antialiased h-screen flex overflow-hidden selection:bg-blue-600 selection:text-white">
@@ -34,9 +36,14 @@
             </span>
         </div>
         <nav class="flex-1 px-4 py-6 space-y-2">
-            <a th:href="@{/dashboard}" class="flex items-center gap-3 px-3 py-2 rounded-lg bg-blue-600/10 text-blue-400 transition-colors">
+            <a th:href="@{/dashboard/empresa}" class="flex items-center gap-3 px-3 py-2 rounded-lg bg-blue-600/10 text-blue-400 transition-colors">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
-                Dashboard
+                Empresa
+            </a>
+
+            <a th:href="@{/dashboard/ordenadores}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-800 text-gray-400 hover:text-white transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                Ordenadores
             </a>
             <a th:href="@{/licencias}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-800 text-gray-400 hover:text-white transition-colors">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path></svg>
@@ -51,13 +58,13 @@
         <header class="h-16 bg-darkPanel border-b border-gray-800 flex items-center justify-between px-6 z-10">
             <div class="text-sm font-medium text-gray-400">
                 <!-- Fallback en caso de que no haya principal validado de Thymeleaf -->
-                Compañía: <span class="text-white" sec:authentication="name" th:text="${empresaNombre ?: 'Acme Corp'}">Acme Corp</span>
+                Compañía: <span class="text-white" th:text="${empresaNombre}">Empresa</span> · <span th:text="${dashboardTitulo}">Dashboard</span>
             </div>
 
             <!-- Selectores de Dispositivo y Rango de Tiempo (Filtros en el Cliente) -->
             <div class="flex items-center gap-4 bg-gray-900/40 rounded-xl px-4 py-2 border border-gray-800/60 shadow-inner">
                 <!-- Selector de RAM -->
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2" th:if="${dashboardTipo == 'empresa'}">
                     <span class="text-xs text-gray-400 font-semibold uppercase tracking-wider">RAM:</span>
                     <select id="selectRam" onchange="filterLaptopsAndUpdate()" class="bg-darkBg text-gray-200 border border-gray-800 rounded-lg px-3 py-1.5 text-xs font-medium focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 outline-none transition-all cursor-pointer">
                         <option value="All">Todas</option>
@@ -72,7 +79,7 @@
                 <div class="h-4 w-px bg-gray-800"></div>
 
                 <!-- Selector de Almacenamiento -->
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2" th:if="${dashboardTipo == 'empresa'}">
                     <span class="text-xs text-gray-400 font-semibold uppercase tracking-wider">Disco:</span>
                     <select id="selectStorage" onchange="filterLaptopsAndUpdate()" class="bg-darkBg text-gray-200 border border-gray-800 rounded-lg px-3 py-1.5 text-xs font-medium focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 outline-none transition-all cursor-pointer">
                         <option value="All">Todos</option>
@@ -87,7 +94,7 @@
                 <div class="h-4 w-px bg-gray-800"></div>
 
                 <!-- Selector de Portátil -->
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2" th:if="${dashboardTipo == 'ordenadores'}">
                     <span class="text-xs text-gray-400 font-semibold uppercase tracking-wider">Dispositivo:</span>
                     <select id="selectPortatil" onchange="updateDashboard()" class="bg-darkBg text-gray-200 border border-gray-800 rounded-lg px-3 py-1.5 text-xs font-medium focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 outline-none transition-all cursor-pointer">
                         <option value="All">Todos los portátiles</option>
@@ -96,6 +103,17 @@
 
                 <!-- Divisor visual -->
                 <div class="h-4 w-px bg-gray-800"></div>
+
+                <div class="h-4 w-px bg-gray-800" th:if="${dashboardTipo == 'empresa'}"></div>
+
+                <div class="flex items-center gap-2" th:if="${dashboardTipo == 'empresa'}">
+                    <span class="text-xs text-gray-400 font-semibold uppercase tracking-wider">Top:</span>
+                    <select id="selectTopK" onchange="updateDashboard()" class="bg-darkBg text-gray-200 border border-gray-800 rounded-lg px-3 py-1.5 text-xs font-medium focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 outline-none transition-all cursor-pointer">
+                        <option value="5">5</option>
+                        <option value="10" selected>10</option>
+                        <option value="15">15</option>
+                    </select>
+                </div>
 
                 <!-- Selector de Rango de Tiempo -->
                 <div class="flex items-center gap-2">
@@ -142,63 +160,76 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                 <!-- Card 1: CPU Actual -->
                 <div class="bg-darkPanel rounded-xl border border-gray-850 shadow-lg overflow-hidden h-36 p-1 hover:border-gray-700 transition-all duration-300">
-                    <iframe th:src="${grafanaIframeUrl} + '&panelId=1'" width="100%" height="100%" frameborder="0" class="w-full h-full"></iframe>
+                    <iframe th:src="${grafanaIframeUrl} + '&panelId=1'" width="100%" height="100%" frameborder="0" scrolling="no" class="w-full h-full grafana-panel-frame"></iframe>
                 </div>
                 <!-- Card 2: RAM Actual -->
                 <div class="bg-darkPanel rounded-xl border border-gray-850 shadow-lg overflow-hidden h-36 p-1 hover:border-gray-700 transition-all duration-300">
-                    <iframe th:src="${grafanaIframeUrl} + '&panelId=2'" width="100%" height="100%" frameborder="0" class="w-full h-full"></iframe>
+                    <iframe th:src="${grafanaIframeUrl} + '&panelId=2'" width="100%" height="100%" frameborder="0" scrolling="no" class="w-full h-full grafana-panel-frame"></iframe>
                 </div>
                 <!-- Card 3: Disco Actual -->
                 <div class="bg-darkPanel rounded-xl border border-gray-850 shadow-lg overflow-hidden h-36 p-1 hover:border-gray-700 transition-all duration-300">
-                    <iframe th:src="${grafanaIframeUrl} + '&panelId=3'" width="100%" height="100%" frameborder="0" class="w-full h-full"></iframe>
+                    <iframe th:src="${grafanaIframeUrl} + '&panelId=3'" width="100%" height="100%" frameborder="0" scrolling="no" class="w-full h-full grafana-panel-frame"></iframe>
                 </div>
                 <!-- Card 4: Temperatura Actual -->
                 <div class="bg-darkPanel rounded-xl border border-gray-850 shadow-lg overflow-hidden h-36 p-1 hover:border-gray-700 transition-all duration-300">
-                    <iframe th:src="${grafanaIframeUrl} + '&panelId=4'" width="100%" height="100%" frameborder="0" class="w-full h-full"></iframe>
+                    <iframe th:src="${grafanaIframeUrl} + '&panelId=4'" width="100%" height="100%" frameborder="0" scrolling="no" class="w-full h-full grafana-panel-frame"></iframe>
                 </div>
                 <!-- Card 5: Bateria Actual -->
                 <div class="bg-darkPanel rounded-xl border border-gray-850 shadow-lg overflow-hidden h-36 p-1 hover:border-gray-700 transition-all duration-300">
-                    <iframe th:src="${grafanaIframeUrl} + '&panelId=5'" width="100%" height="100%" frameborder="0" class="w-full h-full"></iframe>
+                    <iframe th:src="${grafanaIframeUrl} + '&panelId=5'" width="100%" height="100%" frameborder="0" scrolling="no" class="w-full h-full grafana-panel-frame"></iframe>
                 </div>
                 <!-- Card 6: Portátiles Activos -->
                 <div class="bg-darkPanel rounded-xl border border-gray-850 shadow-lg overflow-hidden h-36 p-1 hover:border-gray-700 transition-all duration-300">
-                    <iframe th:src="${grafanaIframeUrl} + '&panelId=6'" width="100%" height="100%" frameborder="0" class="w-full h-full"></iframe>
+                    <iframe th:src="${grafanaIframeUrl} + '&panelId=6'" width="100%" height="100%" frameborder="0" scrolling="no" class="w-full h-full grafana-panel-frame"></iframe>
                 </div>
             </div>
 
-            <!-- Detailed Charts Grid - Row 2 (CPU & RAM Trends) -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- CPU Trend -->
-                <div class="bg-darkPanel rounded-xl border border-gray-850 shadow-lg overflow-hidden h-96 p-2 hover:border-gray-700 transition-all duration-300">
-                    <iframe th:src="${grafanaIframeUrl} + '&panelId=7'" width="100%" height="100%" frameborder="0" class="w-full h-full"></iframe>
+            <!-- Empresa: rankings visuales en tabla con barra interna y nombre completo -->
+            <div th:if="${dashboardTipo == 'empresa'}" class="space-y-6">
+                <div class="top-panel bg-darkPanel rounded-xl border border-gray-850 shadow-lg overflow-hidden h-[520px] p-2 hover:border-gray-700 transition-all duration-300">
+                    <iframe th:src="${grafanaIframeUrl} + '&panelId=7'" width="100%" height="100%" frameborder="0" scrolling="no" class="w-full h-full grafana-panel-frame"></iframe>
                 </div>
-                <!-- RAM Trend -->
-                <div class="bg-darkPanel rounded-xl border border-gray-850 shadow-lg overflow-hidden h-96 p-2 hover:border-gray-700 transition-all duration-300">
-                    <iframe th:src="${grafanaIframeUrl} + '&panelId=8'" width="100%" height="100%" frameborder="0" class="w-full h-full"></iframe>
+                <div class="top-panel bg-darkPanel rounded-xl border border-gray-850 shadow-lg overflow-hidden h-[520px] p-2 hover:border-gray-700 transition-all duration-300">
+                    <iframe th:src="${grafanaIframeUrl} + '&panelId=8'" width="100%" height="100%" frameborder="0" scrolling="no" class="w-full h-full grafana-panel-frame"></iframe>
                 </div>
-            </div>
-
-            <!-- Detailed Charts Grid - Row 3 (Disk & Temp Trends) -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- Disk Trend -->
-                <div class="bg-darkPanel rounded-xl border border-gray-850 shadow-lg overflow-hidden h-96 p-2 hover:border-gray-700 transition-all duration-300">
-                    <iframe th:src="${grafanaIframeUrl} + '&panelId=9'" width="100%" height="100%" frameborder="0" class="w-full h-full"></iframe>
+                <div class="top-panel bg-darkPanel rounded-xl border border-gray-850 shadow-lg overflow-hidden h-[520px] p-2 hover:border-gray-700 transition-all duration-300">
+                    <iframe th:src="${grafanaIframeUrl} + '&panelId=9'" width="100%" height="100%" frameborder="0" scrolling="no" class="w-full h-full grafana-panel-frame"></iframe>
                 </div>
-                <!-- Temperature Trend -->
-                <div class="bg-darkPanel rounded-xl border border-gray-850 shadow-lg overflow-hidden h-96 p-2 hover:border-gray-700 transition-all duration-300">
-                    <iframe th:src="${grafanaIframeUrl} + '&panelId=10'" width="100%" height="100%" frameborder="0" class="w-full h-full"></iframe>
+                <div class="top-panel bg-darkPanel rounded-xl border border-gray-850 shadow-lg overflow-hidden h-[520px] p-2 hover:border-gray-700 transition-all duration-300">
+                    <iframe th:src="${grafanaIframeUrl} + '&panelId=10'" width="100%" height="100%" frameborder="0" scrolling="no" class="w-full h-full grafana-panel-frame"></iframe>
+                </div>
+                <div class="top-panel bg-darkPanel rounded-xl border border-gray-850 shadow-lg overflow-hidden h-[520px] p-2 hover:border-gray-700 transition-all duration-300">
+                    <iframe th:src="${grafanaIframeUrl} + '&panelId=11'" width="100%" height="100%" frameborder="0" scrolling="no" class="w-full h-full grafana-panel-frame"></iframe>
                 </div>
             </div>
 
-            <!-- Detailed Charts Grid - Row 4 (Battery Trend & Top CPU) -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- Battery Trend -->
-                <div class="bg-darkPanel rounded-xl border border-gray-850 shadow-lg overflow-hidden h-96 p-2 hover:border-gray-700 transition-all duration-300">
-                    <iframe th:src="${grafanaIframeUrl} + '&panelId=11'" width="100%" height="100%" frameborder="0" class="w-full h-full"></iframe>
+            <!-- Ordenadores: históricos del portátil seleccionado -->
+            <div th:if="${dashboardTipo == 'ordenadores'}" class="space-y-6">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-darkPanel rounded-xl border border-gray-850 shadow-lg overflow-hidden h-96 p-2 hover:border-gray-700 transition-all duration-300">
+                        <iframe th:src="${grafanaIframeUrl} + '&panelId=7'" width="100%" height="100%" frameborder="0" scrolling="no" class="w-full h-full grafana-panel-frame"></iframe>
+                    </div>
+                    <div class="bg-darkPanel rounded-xl border border-gray-850 shadow-lg overflow-hidden h-96 p-2 hover:border-gray-700 transition-all duration-300">
+                        <iframe th:src="${grafanaIframeUrl} + '&panelId=8'" width="100%" height="100%" frameborder="0" scrolling="no" class="w-full h-full grafana-panel-frame"></iframe>
+                    </div>
                 </div>
-                <!-- Top CPU Consumers -->
-                <div class="bg-darkPanel rounded-xl border border-gray-850 shadow-lg overflow-hidden h-96 p-2 hover:border-gray-700 transition-all duration-300">
-                    <iframe th:src="${grafanaIframeUrl} + '&panelId=12'" width="100%" height="100%" frameborder="0" class="w-full h-full"></iframe>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-darkPanel rounded-xl border border-gray-850 shadow-lg overflow-hidden h-96 p-2 hover:border-gray-700 transition-all duration-300">
+                        <iframe th:src="${grafanaIframeUrl} + '&panelId=9'" width="100%" height="100%" frameborder="0" scrolling="no" class="w-full h-full grafana-panel-frame"></iframe>
+                    </div>
+                    <div class="bg-darkPanel rounded-xl border border-gray-850 shadow-lg overflow-hidden h-96 p-2 hover:border-gray-700 transition-all duration-300">
+                        <iframe th:src="${grafanaIframeUrl} + '&panelId=10'" width="100%" height="100%" frameborder="0" scrolling="no" class="w-full h-full grafana-panel-frame"></iframe>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-darkPanel rounded-xl border border-gray-850 shadow-lg overflow-hidden h-96 p-2 hover:border-gray-700 transition-all duration-300">
+                        <iframe th:src="${grafanaIframeUrl} + '&panelId=11'" width="100%" height="100%" frameborder="0" scrolling="no" class="w-full h-full grafana-panel-frame"></iframe>
+                    </div>
+                    <div class="bg-darkPanel rounded-xl border border-gray-850 shadow-lg overflow-hidden h-96 p-2 hover:border-gray-700 transition-all duration-300">
+                        <iframe th:src="${grafanaIframeUrl} + '&panelId=12'" width="100%" height="100%" frameborder="0" scrolling="no" class="w-full h-full grafana-panel-frame"></iframe>
+                    </div>
                 </div>
             </div>
 
@@ -209,6 +240,7 @@
     <script th:inline="javascript">
         /*<![CDATA[*/
         const empresaId = [[${empresaId}]];
+        const dashboardTipo = [[${dashboardTipo}]];
         
         // Datos deterministas para coincidir exactamente con seed-victoria.sh
         const RAM_TOTAL_OPCIONES = [8, 16, 32, 64];
@@ -238,8 +270,9 @@
         // Generar dinámicamente la lista de portátiles en base a los filtros actuales
         function populateLaptops() {
             const selectPortatil = document.getElementById('selectPortatil');
-            const selectedRam = document.getElementById('selectRam').value;
-            const selectedStorage = document.getElementById('selectStorage').value;
+            if (!selectPortatil) { return; }
+            const selectedRam = (document.getElementById('selectRam')?.value || 'All');
+            const selectedStorage = (document.getElementById('selectStorage')?.value || 'All');
             const previousValue = selectPortatil.value;
             
             // Vaciar excepto el primero (Todos)
@@ -266,54 +299,53 @@
         }
 
         document.addEventListener("DOMContentLoaded", function() {
-            populateLaptops();
+            if (dashboardTipo === 'ordenadores') {
+                populateLaptops();
+            }
             updateDashboard();
         });
 
         // Llamado cuando cambian los filtros de RAM o Almacenamiento
         function filterLaptopsAndUpdate() {
-            populateLaptops();
             updateDashboard();
+        }
+
+
+        function updateTopPanelHeights() {
+            if (dashboardTipo !== 'empresa') { return; }
+            const topKValue = document.getElementById('selectTopK')?.value || '10';
+            const heightByTop = { '5': '360px', '10': '520px', '15': '720px' };
+            const height = heightByTop[topKValue] || '420px';
+            document.querySelectorAll('.top-panel').forEach(panel => {
+                panel.style.height = height;
+            });
         }
 
         // Recarga todos los iframes con los nuevos filtros seleccionados
         function updateDashboard() {
             const timeValue = document.getElementById('selectTime').value;
-            const portatilValue = document.getElementById('selectPortatil').value;
-            const ramValue = document.getElementById('selectRam').value;
-            const storageValue = document.getElementById('selectStorage').value;
-            
+            const portatilValue = document.getElementById('selectPortatil')?.value || 'All';
+            const ramValue = document.getElementById('selectRam')?.value || 'All';
+            const storageValue = document.getElementById('selectStorage')?.value || 'All';
+            const topKValue = document.getElementById('selectTopK')?.value || '10';
+            updateTopPanelHeights();
             const iframes = document.querySelectorAll('main iframe');
-            
+
             iframes.forEach(iframe => {
-                let src = iframe.src;
-                let url = new URL(src);
-                
-                // Actualizar parámetros de rango temporal
+                let url = new URL(iframe.src);
                 url.searchParams.set('from', timeValue);
                 url.searchParams.set('to', 'now');
-                
-                // Actualizar parámetro de dispositivo
-                if (portatilValue === 'All') {
-                    url.searchParams.set('var-portatil', '$__all');
-                } else {
+
+                if (dashboardTipo === 'ordenadores') {
                     url.searchParams.set('var-portatil', portatilValue);
                 }
-                
-                // Actualizar parámetros de RAM
-                if (ramValue === 'All') {
-                    url.searchParams.set('var-ram', '$__all');
-                } else {
-                    url.searchParams.set('var-ram', ramValue);
+
+                if (dashboardTipo === 'empresa') {
+                    url.searchParams.set('var-ram', ramValue === 'All' ? '$__all' : ramValue);
+                    url.searchParams.set('var-storage', storageValue === 'All' ? '$__all' : storageValue);
+                    url.searchParams.set('var-topk', topKValue);
                 }
-                
-                // Actualizar parámetros de Almacenamiento
-                if (storageValue === 'All') {
-                    url.searchParams.set('var-storage', '$__all');
-                } else {
-                    url.searchParams.set('var-storage', storageValue);
-                }
-                
+
                 iframe.src = url.toString();
             });
         }
